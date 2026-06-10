@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-Factor Authentication — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Identity Provider</span>
+        </div>
+
+        <h1 class="auth-title">Two-Factor Auth</h1>
+        <p class="auth-subtitle">Enter the 6-digit code from your authenticator app</p>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/mfa/verify}" method="post" id="mfa-form">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+            <div class="form-group">
+                <label for="code">Authentication Code</label>
+                <input type="text" id="code" name="code"
+                       placeholder="000000"
+                       maxlength="8"
+                       autocomplete="one-time-code"
+                       inputmode="numeric"
+                       required autofocus
+                       style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem;">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+
+        <div class="divider"><span>or use a backup code</span></div>
+
+        <form th:action="@{/mfa/verify}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+            <input type="hidden" name="useBackup" value="true"/>
+            <div class="form-group">
+                <label for="backupCode">Backup Code</label>
+                <input type="text" id="backupCode" name="code"
+                       placeholder="0000-0000"
+                       maxlength="9">
+            </div>
+            <button type="submit" class="btn btn-secondary">Use Backup Code</button>
+        </form>
+
+        <p class="auth-footer">
+            <a th:href="@{/login}">← Back to login</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

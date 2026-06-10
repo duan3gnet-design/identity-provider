@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        body { background: #F3F4F6; }
+        .dashboard { max-width: 700px; margin: 48px auto; padding: 0 16px; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .dashboard-header h1 { font-size: 1.5rem; font-weight: 700; color: #111827; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+        .card h2 { font-size: 0.875rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+        .card p { font-size: 1rem; color: #111827; font-weight: 500; word-break: break-all; }
+        .tag { display: inline-block; background: #EEF2FF; color: #4F46E5; padding: 2px 10px; border-radius: 99px; font-size: 0.8rem; margin: 2px; }
+        .btn-sm { padding: 6px 14px; font-size: 0.85rem; }
+        .logout-btn { text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>👤 Tài khoản của bạn</h1>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-secondary btn-sm">Đăng xuất</button>
+        </form>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <h2>Tên đăng nhập</h2>
+            <p th:text="${user?.username} ?: 'N/A'"></p>
+        </div>
+        <div class="card">
+            <h2>Email</h2>
+            <p th:text="${user?.email} ?: 'N/A'"></p>
+        </div>
+        <div class="card">
+            <h2>Họ và tên</h2>
+            <p th:text="${user?.fullName} ?: '—'"></p>
+        </div>
+        <div class="card">
+            <h2>Roles</h2>
+            <div th:if="${user != null}">
+                <span class="tag" th:each="role : ${user.roles}" th:text="${role.name}"></span>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Xác thực 2 bước (MFA)</h2>
+            <p sec:authorize="isAuthenticated()">
+                <a th:href="@{/mfa/setup}" class="btn btn-primary btn-sm" style="text-decoration:none;">
+                    Thiết lập MFA
+                </a>
+            </p>
+        </div>
+        <div class="card">
+            <h2>Trạng thái</h2>
+            <p>
+                <span th:if="${user?.enabled}" style="color:#10B981;">● Hoạt động</span>
+                <span th:unless="${user?.enabled}" style="color:#EF4444;">● Bị khóa</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin section -->
+    <div sec:authorize="hasRole('ADMIN')" style="margin-top: 24px;">
+        <div class="card">
+            <h2>Quản trị</h2>
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <a href="/api/admin/users" class="btn btn-primary btn-sm" style="text-decoration:none;">Quản lý Users</a>
+                <a href="/api/admin/clients" class="btn btn-secondary btn-sm" style="text-decoration:none;">Quản lý Clients</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

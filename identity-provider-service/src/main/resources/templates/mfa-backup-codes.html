@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mã dự phòng — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .backup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .backup-code {
+            background: #F3F4F6;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 0.1em;
+            color: #111827;
+        }
+        .warning-box {
+            background: #FFFBEB;
+            border: 1px solid #FCD34D;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 0.875rem;
+            color: #92400E;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 460px;">
+
+        <div class="auth-logo">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Mã dự phòng</span>
+        </div>
+
+        <h1 class="auth-title">Lưu mã dự phòng</h1>
+        <p class="auth-subtitle">Dùng khi bạn không truy cập được app xác thực.</p>
+
+        <div class="warning-box">
+            ⚠️ <strong>Quan trọng:</strong> Mỗi mã chỉ dùng được một lần. Lưu chúng vào nơi an toàn ngay bây giờ — bạn sẽ không thể xem lại sau này.
+        </div>
+
+        <div class="backup-grid">
+            <div class="backup-code" th:each="code : ${backupCodes}" th:text="${code}"></div>
+        </div>
+
+        <button onclick="copyAll()" class="btn btn-secondary" style="margin-bottom: 12px;">
+            📋 Sao chép tất cả
+        </button>
+
+        <a th:href="@{/}" class="btn btn-primary" style="text-decoration: none; display: block; text-align: center;">
+            Đã lưu, tiếp tục →
+        </a>
+    </div>
+</div>
+
+<script>
+function copyAll() {
+    const codes = [...document.querySelectorAll('.backup-code')].map(el => el.textContent).join('\n');
+    navigator.clipboard.writeText(codes).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓ Đã sao chép!';
+        setTimeout(() => btn.textContent = '📋 Sao chép tất cả', 2000);
+    });
+}
+</script>
+</body>
+</html>

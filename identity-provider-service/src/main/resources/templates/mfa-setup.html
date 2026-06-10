@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiết lập MFA — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .qr-box { text-align: center; margin: 20px 0; }
+        .qr-box img { border: 4px solid #E5E7EB; border-radius: 12px; }
+        .secret-box { background: #F3F4F6; border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 0.95rem; word-break: break-all; margin: 12px 0; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 460px;">
+
+        <div class="auth-logo">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Xác thực 2 bước</span>
+        </div>
+
+        <!-- Đã bật MFA -->
+        <div th:if="${mfaEnabled}">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+            <h1 class="auth-title">MFA đang bật ✓</h1>
+            <p class="auth-subtitle">Tài khoản của bạn đang được bảo vệ bởi xác thực 2 bước.</p>
+
+            <form th:action="@{/mfa/disable}" method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="code">Nhập mã OTP để tắt MFA</label>
+                    <input type="text" id="code" name="code" placeholder="000000" maxlength="6" inputmode="numeric" required>
+                </div>
+                <button type="submit" class="btn btn-secondary">Tắt xác thực 2 bước</button>
+            </form>
+            <p class="auth-footer"><a th:href="@{/}">← Quay lại</a></p>
+        </div>
+
+        <!-- Chưa bật MFA — Hiện QR code -->
+        <div th:unless="${mfaEnabled}">
+            <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+            <h1 class="auth-title">Bật xác thực 2 bước</h1>
+            <p class="auth-subtitle">Quét mã QR bằng app Google Authenticator hoặc Authy.</p>
+
+            <div class="qr-box">
+                <img th:src="${qrCode}" alt="QR Code" width="200" height="200"/>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #6B7280; margin-bottom: 4px; text-align: center;">Hoặc nhập thủ công:</p>
+            <div class="secret-box" th:text="${secret}"></div>
+
+            <form th:action="@{/mfa/setup/enable}" method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="enableCode">Nhập mã từ app để xác nhận</label>
+                    <input type="text" id="enableCode" name="code" placeholder="000000"
+                           maxlength="6" inputmode="numeric" required autofocus
+                           style="text-align: center; letter-spacing: 0.4rem; font-size: 1.3rem;">
+                </div>
+                <button type="submit" class="btn btn-primary">Xác nhận & Bật MFA</button>
+            </form>
+            <p class="auth-footer"><a th:href="@{/}">← Bỏ qua</a></p>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

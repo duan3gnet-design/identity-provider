@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Identity Provider</span>
+        </div>
+
+        <h1 class="auth-title">Chào mừng trở lại</h1>
+        <p class="auth-subtitle">Đăng nhập để tiếp tục</p>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+        <!--
+            POST về /login/process — LoginController tự xử lý.
+            KHÔNG dùng Spring Security's built-in loginProcessingUrl (/login)
+            vì ta cần intercept để handle MFA trước.
+        -->
+        <form th:action="@{/login/process}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+            <div class="form-group">
+                <label for="username">Tên đăng nhập hoặc Email</label>
+                <input type="text" id="username" name="username"
+                       placeholder="username hoặc email"
+                       autocomplete="username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Nhập mật khẩu"
+                       autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+        </form>
+
+        <div class="divider"><span>hoặc</span></div>
+
+        <a th:href="@{/oauth2/authorization/google}" class="btn btn-social">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+                <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            Tiếp tục với Google
+        </a>
+
+        <p class="auth-footer">
+            Chưa có tài khoản? <a th:href="@{/register}">Đăng ký</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

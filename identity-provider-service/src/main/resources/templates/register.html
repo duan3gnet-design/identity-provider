@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Identity Provider</span>
+        </div>
+
+        <h1 class="auth-title">Tạo tài khoản</h1>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" name="fullName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+                <label for="username">Tên đăng nhập <span class="required">*</span></label>
+                <input type="text" id="username" name="username" placeholder="username" required minlength="3">
+            </div>
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu <span class="required">*</span></label>
+                <input type="password" id="password" name="password" placeholder="Tối thiểu 8 ký tự" required minlength="8">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Đăng ký</button>
+        </form>
+
+        <p class="auth-footer">
+            Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a>
+        </p>
+    </div>
+</div>
+
+<script>
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const body = {
+        fullName: form.fullName.value,
+        username: form.username.value,
+        email: form.email.value,
+        password: form.password.value
+    };
+    const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    const container = document.querySelector('.auth-card');
+    // Xóa alert cũ
+    container.querySelectorAll('.alert').forEach(el => el.remove());
+    const div = document.createElement('div');
+    div.className = data.success ? 'alert alert-success' : 'alert alert-error';
+    div.textContent = data.success ? 'Đăng ký thành công! Bạn có thể đăng nhập ngay.' : (data.message || 'Đăng ký thất bại.');
+    form.before(div);
+    if (data.success) form.reset();
+});
+</script>
+</body>
+</html>

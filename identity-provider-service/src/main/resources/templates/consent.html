@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấp quyền truy cập — Identity Provider</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 480px;">
+
+        <div class="auth-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="#4F46E5"/>
+                <path d="M20 10C15.58 10 12 13.58 12 18c0 2.76 1.38 5.2 3.5 6.7V22h9v2.7C26.62 23.2 28 20.76 28 18c0-4.42-3.58-8-8-8z" fill="white"/>
+                <rect x="14" y="24" width="12" height="6" rx="2" fill="white"/>
+            </svg>
+            <span>Identity Provider</span>
+        </div>
+
+        <h1 class="auth-title" style="font-size:1.3rem; margin-bottom:4px;">
+            <strong th:text="${clientName}">App</strong>
+            muốn truy cập tài khoản của bạn
+        </h1>
+        <p class="auth-subtitle">
+            Đang đăng nhập với tư cách: <strong th:text="${principalName}"></strong>
+        </p>
+
+        <!-- Scopes cần user xác nhận -->
+        <div th:if="${not #lists.isEmpty(scopes)}" class="scope-section">
+            <p class="scope-label">Ứng dụng yêu cầu quyền mới:</p>
+            <ul class="scope-list">
+                <li th:each="scope : ${scopes}">
+                    <span class="scope-icon">✓</span>
+                    <div>
+                        <span class="scope-name" th:text="${scope.name}"></span>
+                        <span class="scope-desc" th:text="${scope.description}"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Scopes đã approve trước đó -->
+        <div th:if="${not #lists.isEmpty(approvedScopes)}" class="scope-section scope-approved">
+            <p class="scope-label">Đã cấp quyền trước đó:</p>
+            <ul class="scope-list">
+                <li th:each="scope : ${approvedScopes}">
+                    <span class="scope-icon approved">✓</span>
+                    <div>
+                        <span class="scope-name" th:text="${scope.name}"></span>
+                        <span class="scope-desc" th:text="${scope.description}"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!--
+            SAS xử lý POST /oauth2/authorize với các param sau:
+              - consent_action : "approve" hoặc "deny"
+              - state          : giá trị state từ SAS (bắt buộc, không được thiếu)
+              - client_id      : client đang request
+              - scope          : các scope user chọn (multi-value checkbox)
+        -->
+        <form th:action="@{/oauth2/authorize}" method="post">
+            <input type="hidden" name="_csrf"          th:value="${_csrf.token}"/>
+            <input type="hidden" name="client_id"      th:value="${clientId}"/>
+            <input type="hidden" name="state"          th:value="${state}"/>
+
+            <!-- Scope checkboxes — tất cả checked mặc định -->
+            <div th:each="scope : ${scopes}" style="display:none;">
+                <input type="checkbox" name="scope" th:value="${scope.name}" checked/>
+            </div>
+            <!-- Scope đã approve trước cũng gửi lại để không bị mất -->
+            <div th:each="scope : ${approvedScopes}" style="display:none;">
+                <input type="checkbox" name="scope" th:value="${scope.name}" checked/>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:24px;">
+                <button type="submit"
+                        name="consent_action" value="approve"
+                        class="btn btn-primary" style="flex:1;">
+                    Cho phép
+                </button>
+                <button type="submit"
+                        name="consent_action" value="deny"
+                        class="btn btn-secondary" style="flex:1;">
+                    Từ chối
+                </button>
+            </div>
+        </form>
+
+        <p style="font-size:0.75rem; color:#6B7280; text-align:center; margin-top:16px;">
+            Việc cấp quyền không chia sẻ mật khẩu của bạn với ứng dụng.
+        </p>
+    </div>
+</div>
+</body>
+</html>
